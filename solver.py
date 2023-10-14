@@ -1,10 +1,11 @@
+import collections
 import copy
 
 def solve_puzzle(queue):
-	while len(queue) > 0:
-		move = queue.pop(0)
+	while queue:
+		move = queue.popleft()
 		if move == True:
-			solution = queue.pop(0)
+			solution = queue.popleft()
 			print(f'Found solution in {solution.moves} moves.')
 			solution.print_map()
 			return True
@@ -115,7 +116,7 @@ class Puzzle:
 		return valid_moves
 
 
-queue = []
+queue = collections.deque()
 visited = set()
 found = False
 data = get_puzzle('unsat5x7.bugs')
