@@ -6,8 +6,7 @@ To solve the bug rush problem I implemented a breadth first search. For simplici
 I iterated through the file and added each character where it needed to be. I then checked if the instance provide was already solved, and if not added all of
 the valid next moves into an array. I continued this until I found a solution. I kept a list that was the hash of the current instances map represented as a string.
 
-into a hash of the instance's 1d array represented as a tuple to improve performance.
-TThis worked fine, but took a while to solve some of the larger instances, and took too long to finish the unsat problem. To increase performance I implemented a minqueue
+This worked fine, but took a while to solve some of the larger instances, and took too long to finish the unsat problem. To increase performance I implemented a minqueue
 using OOTB python libraries, changed the 2d array into a 1d array, and changes the hash into a hash of the instance's 1d array represented as a tuple to improve performance.
 These changes brought all of the puzzles to under 5 seconds. The unsat problem did take 5.1 seconds one time but only once.
 
