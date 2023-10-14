@@ -25,6 +25,8 @@ def get_puzzle(file):
 	map = []
 	width = len(lines[0]) - 1
 	for i, line in enumerate(lines):
+		if i == 0: 
+			continue
 		for char in line:
 			if char != '\n':
 				map.append(char)
@@ -85,7 +87,7 @@ class Puzzle:
 							visited.add(hash(new_puzzle))
 
 				#not left edge of map
-				if i != 0 and (width % i) != 0:
+				if i != 0 and (i % width) != 0:
 					if self.map[i-1] == ' ':
 						new_puzzle = Puzzle(self.map, self.moves+1)
 						new_puzzle.swap(i, i-1)
@@ -96,7 +98,7 @@ class Puzzle:
 
 			if char == '|':
 				#Not top of map
-				if  not (i - width < 0):
+				if not (i - width < 0):
 					if self.map[i-width] == ' ':
 						new_puzzle = Puzzle(self.map, self.moves+1)
 						new_puzzle.swap(i, i-width)

@@ -3,3 +3,4 @@ https://able.bio/rhett/python-read-a-file-line-by-line--116rey6
 https://favtutor.com/blogs/deep-copy-python
 https://www.geeksforgeeks.org/queue-in-python/
 https://stackoverflow.com/questions/7027199/hashing-arrays-in-python
+https://blog.enterprisedna.co/deque-in-python-tutorial-with-examples/
