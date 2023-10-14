@@ -13,12 +13,11 @@ def solve_puzzle(queue: collections.deque):
 	'''
 	while queue:
 		move = queue.popleft()
-		if move == True:
-			solution = queue.popleft()
-			print(f'Found solution in {solution.moves} moves.')
-			solution.print_map()
-			return True
 		for puzz in move.get_next_moves():
+			if puzz.solved == True:
+					print(f'Found solution in {puzz.moves} moves.')
+					puzz.print_map()
+					return True
 			queue.append(puzz)	
 	return False
 
@@ -31,9 +30,9 @@ def solve_puzzle_astar(queue: list):
 		while True:
 			move = heappop(queue)
 			for puzz in move.get_next_moves():
-				if move.solved == True:
-					print(f'Found solution in {move.moves} moves.')
-					move.print_map()
+				if puzz.solved == True:
+					print(f'Found solution in {puzz.moves} moves.')
+					puzz.print_map()
 					return True
 				heappush(queue, puzz)
 	except Exception as e:
@@ -134,7 +133,7 @@ class Puzzle:
 							visited.add(hash(new_puzzle))
 
 				if self.map[i+1] == ' ':
-						new_puzzle = Puzzle(self.map,self.car_index, self.moves+1)
+						new_puzzle = Puzzle(self.map,self.car_index+1, self.moves+1)
 						new_puzzle.swap(i, i+1)
 						if hash(new_puzzle) not in visited:
 							valid_moves.append(new_puzzle)
@@ -166,7 +165,7 @@ class Puzzle:
 				#Not top of map
 				if not (i - width < 0):
 					if self.map[i-width] == ' ':
-						new_puzzle = Puzzle(self.map,self.car_index, self.moves+1)
+						new_puzzle = Puzzle(self.map, self.car_index, self.moves+1)
 						new_puzzle.swap(i, i-width)
 						if hash(new_puzzle) not in visited:
 							valid_moves.append(new_puzzle)
@@ -184,7 +183,7 @@ class Puzzle:
 		return valid_moves
 
 
-parser = argparse.ArgumentParser(prog='bugrush', description='Solves instances of a bug rush puzzle.')
+parser = argparse.ArgumentParser(prog='bugrush.py', description='Solves instances of a bug rush puzzle.')
 parser.add_argument('file', type=str, help='File containing the bug rush puzzle')
 parser.add_argument('-astar', type=str, help='Set to true to use astar')
 args = parser.parse_args()
