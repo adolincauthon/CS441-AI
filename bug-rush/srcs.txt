@@ -4,3 +4,6 @@ https://favtutor.com/blogs/deep-copy-python
 https://www.geeksforgeeks.org/queue-in-python/
 https://stackoverflow.com/questions/7027199/hashing-arrays-in-python
 https://blog.enterprisedna.co/deque-in-python-tutorial-with-examples/
+https://www.geeksforgeeks.org/min-heap-in-python/
+https://wiingy.com/learn/python/operator-overloading-in-python/
+https://code.visualstudio.com/docs/python/debugging
