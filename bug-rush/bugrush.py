@@ -2,6 +2,9 @@ import argparse
 import collections
 import copy
 import sys
+from heapq import heapify, heappush, heappop
+
+
 
 def solve_puzzle(queue: collections.deque):
 	'''
@@ -10,14 +13,30 @@ def solve_puzzle(queue: collections.deque):
 	'''
 	while queue:
 		move = queue.popleft()
-		if move == True:
-			solution = queue.popleft()
-			print(f'Found solution in {solution.moves} moves.')
-			solution.print_map()
-			return True
 		for puzz in move.get_next_moves():
+			if puzz.solved == True:
+					print(f'Found solution in {puzz.moves} moves.')
+					puzz.print_map()
+					return True
 			queue.append(puzz)	
 	return False
+
+def solve_puzzle_astar(queue: list):
+	'''
+	Solves a  instance of a puzzle and displays solution and number of moves required
+	:param queue: dequeue instance containing all valid moves from start of puzzle
+	'''
+	try:
+		while True:
+			move = heappop(queue)
+			for puzz in move.get_next_moves():
+				if puzz.solved == True:
+					print(f'Found solution in {puzz.moves} moves.')
+					puzz.print_map()
+					return True
+				heappush(queue, puzz)
+	except Exception as e:
+		return False
 
 def get_puzzle(file: str) -> dict:
 	'''
@@ -39,24 +58,34 @@ def get_puzzle(file: str) -> dict:
 	for i, line in enumerate(lines):
 		if i == 0: 
 			continue
-		for char in line:
+		for j, char in enumerate(line):
+			if char == '>':
+				car_index = j
 			if char != '\n':
 				map.append(char)
-	return {'map': map, 'width': width}
+	return {'map': map, 'width': width, 'car_index': car_index}
 
 class Puzzle:
 	'''
 	Instance of a bug rush puzzle
 	'''
-	def __init__(self, puzz: list, moves: int = 0):
+	def __init__(self, puzz: list, car_index: int, moves: int = 0, solved=False):
 		'''
 		:param puzz:  List containing an instance of a puzzle
 		:param moves: Number of moves this instance is from the starting puzzle 
 		'''
 		self.map = copy.deepcopy(puzz)
 		self.moves = moves
+		self.min_moves = (width - car_index - 1) + moves
+		self.car_index = car_index
+		self.solved = solved
+	
+	def __lt__(self, other):
+		return self.min_moves < other.min_moves
+
 
 	def __hash__(self):
+		self.car_index = car_index
 		'''
 		Returns a hash of the puzzle instane
 		'''
@@ -91,19 +120,20 @@ class Puzzle:
 			if char == '>':
 				#right edge of map
 				if (i + 1) % width == 0:
-					return [True, self]
+					self.solved = True
+					return [self]
 				
 				#not left edge of map
 				if i != 0 and (i % width) != 0:
 					if self.map[i-1] == ' ':
-						new_puzzle = Puzzle(self.map, self.moves+1)
+						new_puzzle = Puzzle(self.map, self.car_index - 1, self.moves+1)
 						new_puzzle.swap(i, i-1)
 						if hash(new_puzzle) not in visited:
 							valid_moves.append(new_puzzle)
 							visited.add(hash(new_puzzle))
 
 				if self.map[i+1] == ' ':
-						new_puzzle = Puzzle(self.map, self.moves+1)
+						new_puzzle = Puzzle(self.map,self.car_index+1, self.moves+1)
 						new_puzzle.swap(i, i+1)
 						if hash(new_puzzle) not in visited:
 							valid_moves.append(new_puzzle)
@@ -114,7 +144,7 @@ class Puzzle:
 				#not right edge of map
 				if (i + 1) % width != 0:
 					if self.map[i+1] == ' ':
-						new_puzzle = Puzzle(self.map, self.moves+1)
+						new_puzzle = Puzzle(self.map,self.car_index, self.moves+1)
 						new_puzzle.swap(i, i+1)
 						if hash(new_puzzle) not in visited:
 							valid_moves.append(new_puzzle)
@@ -123,7 +153,7 @@ class Puzzle:
 				#not left edge of map
 				if i != 0 and (i % width) != 0:
 					if self.map[i-1] == ' ':
-						new_puzzle = Puzzle(self.map, self.moves+1)
+						new_puzzle = Puzzle(self.map,self.car_index, self.moves+1)
 						new_puzzle.swap(i, i-1)
 						if hash(new_puzzle) not in visited:
 							valid_moves.append(new_puzzle)
@@ -135,7 +165,7 @@ class Puzzle:
 				#Not top of map
 				if not (i - width < 0):
 					if self.map[i-width] == ' ':
-						new_puzzle = Puzzle(self.map, self.moves+1)
+						new_puzzle = Puzzle(self.map, self.car_index, self.moves+1)
 						new_puzzle.swap(i, i-width)
 						if hash(new_puzzle) not in visited:
 							valid_moves.append(new_puzzle)
@@ -144,7 +174,7 @@ class Puzzle:
 				#not bottom of graph			
 				if not ((i + width) > (len(self.map) -1)):
 					if self.map[i+width] == ' ':
-						new_puzzle = Puzzle(self.map, self.moves+1)
+						new_puzzle = Puzzle(self.map,self.car_index, self.moves+1)
 						new_puzzle.swap(i, i+width)
 						if hash(new_puzzle) not in visited:
 							valid_moves.append(new_puzzle)
@@ -153,12 +183,18 @@ class Puzzle:
 		return valid_moves
 
 
-parser = argparse.ArgumentParser(prog='bugrush', description='Solves instances of a bug rush puzzle.')
+parser = argparse.ArgumentParser(prog='bugrush.py', description='Solves instances of a bug rush puzzle.')
 parser.add_argument('file', type=str, help='File containing the bug rush puzzle')
+parser.add_argument('-astar', type=str, help='Set to true to use astar')
 args = parser.parse_args()
 
-#Create FIFO queue
-queue = collections.deque()
+
+if args.astar == 'true':
+	queue = []
+	heapify(queue)
+else:
+	#Create FIFO queue 
+	queue = collections.deque()
 
 #create set of visited positions
 visited = set()
@@ -171,7 +207,8 @@ except FileNotFoundError:
 	sys.exit()
 
 width = data.get('width')
-puzzle = Puzzle(data.get('map'))
+car_index = data.get('car_index')
+puzzle = Puzzle(data.get('map'), car_index, 0)
 visited.add(hash(puzzle))
 print('Original Puzzle: ')
 puzzle.print_map()
@@ -181,10 +218,16 @@ moves = puzzle.get_next_moves()
 
 if moves[0] == True:
 		print('Puzzled solved in 0 steps')
-for move in moves:
-	queue.append(move)
 
-found = solve_puzzle(queue)
+for move in moves:
+	if args.astar:
+		heappush(queue, move)
+	else:
+		queue.append(move)
+if args.astar == 'true':
+	found = solve_puzzle_astar(queue)
+else:
+	found = solve_puzzle(queue)
 
 if found == False:
 	print('unsat')
