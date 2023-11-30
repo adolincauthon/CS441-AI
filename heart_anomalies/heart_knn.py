@@ -12,7 +12,7 @@ def distance(row_a, row_b):
     '''
     distance = 0.0
     for i in range(len(row_a)):
-        distance += (row_a[i] - row_b.iloc[i])**2
+        distance += float(np.linalg.norm(np.array(row_a) - np.array(row_b)))
     return np.sqrt(distance)
 
 
@@ -119,7 +119,7 @@ def accuracy(actual, predicted):
 # Seed for semi-consistent data
 seed(42)
 file = 'heart-anomalies.csv'
-folds = 5
+folds = 10
 neighbors = 5
 dataset = pd.read_csv(file, header=None)
 
